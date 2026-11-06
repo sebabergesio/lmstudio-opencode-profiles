@@ -1,0 +1,8 @@
+# Copias de seguridad locales del instalador
+lmstudio-opencode-backup-*/
+
+# Temporales
+*.tmp
+*.log
+Thumbs.db
+.DS_Store

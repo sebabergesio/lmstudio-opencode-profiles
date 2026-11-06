@@ -1,0 +1,74 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "__OPENCODE_DIR__/instructions/local-models.md"
+  ],
+  "providers": {
+    "lmstudio": {
+      "name": "LM Studio (local)",
+      "settings": {
+        "baseURL": "http://127.0.0.1:1234/v1"
+      },
+      "compatibility": {
+        "maxTokensField": "max_tokens"
+      },
+      "models": {
+        "qwen/qwen3.5-4b": {
+          "name": "Qwen 3.5 4B - Orquestador y código (local)",
+          "limit": {
+            "context": 20480,
+            "output": 8192
+          },
+          "capabilities": {
+            "tools": true,
+            "temperature": true,
+            "reasoning": { "supported": false },
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "body": {
+            "temperature": 0.3,
+            "top_p": 0.9
+          }
+        }
+      }
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "buffer": "10%"
+  },
+  "permissions": [
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "edit", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "*", "effect": "allow" }
+  ],
+  "agents": {
+    "title": {
+      "model": "lmstudio/qwen/qwen3.5-4b",
+      "steps": 1,
+      "request": {
+        "body": { "temperature": 0.2 }
+      }
+    },
+    "general": {
+      "description": "Orquestador general con Qwen 3.5 4B. Resuelve tareas, escribe código simple, ejecuta comandos y delega lo complejo",
+      "mode": "primary",
+      "model": "lmstudio/qwen/qwen3.5-4b",
+      "steps": 24,
+      "system": "Eres el orquestador principal del stack local (Qwen 3.5 4B con herramientas). Responde en español. Reglas: 1) Resuelve tú mismo la mayoría de tareas: escribir y modificar código simple, analizar archivos y ejecutar comandos. 2) Delega con agent='coder' solo tareas de programación complejas o refactorizaciones extensas; el coder usa el mismo modelo con un contexto limpio. 3) No delegues dos veces la misma tarea ni en paralelo tareas dependientes. 4) Verifica el resultado antes de responder. Ve al grano, sin preámbulos ni relleno.",
+      "color": "#7c3aed"
+    },
+    "coder": {
+      "description": "Programador experto con Qwen 3.5 4B y herramientas",
+      "mode": "subagent",
+      "model": "lmstudio/qwen/qwen3.5-4b",
+      "steps": 32,
+      "request": {
+        "body": { "temperature": 0.2, "top_p": 0.9 }
+      },
+      "system": "Eres un ingeniero de software experto con acceso a herramientas. Inspecciona el código antes de modificarlo, haz cambios mínimos y verificables, y ejecuta pruebas o comandos de comprobación cuando sea posible. Entrega soluciones completas y ejecutables, indica supuestos y no inventes APIs, rutas ni dependencias. Responde en español.",
+      "color": "#10b981"
+    }
+  }
+}
